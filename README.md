@@ -10,6 +10,7 @@ It supports **pagination** to handle large datasets and uses environment variabl
 flowchart LR
     A[Polygon.io API] --> B[Python App]
     B --> C[Snowflake Database]
+```
 
 ---
 
