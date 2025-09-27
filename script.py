@@ -1,14 +1,21 @@
+
 import requests
 import os
+
+# dotenv to load environment variables from a .env file
 from dotenv import load_dotenv
 load_dotenv()
+
 import snowflake.connector
 from datetime import datetime
+
+# api key from environment variable
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
 
+# LIMIT for pagination
 LIMIT = 1000
-DS = '2025-09-25'
 
+DS = '2025-09-25'
 
 def run_stock_job():
     DS = datetime.now().strftime('%Y-%m-%d')
@@ -17,12 +24,18 @@ def run_stock_job():
     tickers = []
 
     data = response.json()
+
+    # data.keys(): results, status, request_id, count, next_url
+     
     for ticker in data['results']:
         ticker['ds'] = DS
         tickers.append(ticker)
 
+    # Handle pagination
     while 'next_url' in data:
         print('requesting next page', data['next_url'])
+        # Ampersand before apiKey since next_url already has some query params
+        # Ampersand ensures proper URL formatting
         response = requests.get(data['next_url'] + f'&apiKey={POLYGON_API_KEY}')
         data = response.json()
         print(data)
