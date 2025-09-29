@@ -18,7 +18,9 @@ LIMIT = 1000
 DS = '2025-09-25'
 
 def run_stock_job():
+    # record the date of the run
     DS = datetime.now().strftime('%Y-%m-%d')
+
     url = f'https://api.polygon.io/v3/reference/tickers?market=stocks&active=true&order=asc&limit={LIMIT}&sort=ticker&apiKey={POLYGON_API_KEY}'
     response = requests.get(url)
     tickers = []
@@ -28,19 +30,21 @@ def run_stock_job():
     # data.keys(): results, status, request_id, count, next_url
      
     for ticker in data['results']:
-        ticker['ds'] = DS
+        ticker['ds'] = DS # add the run date to each record
         tickers.append(ticker)
 
     # Handle pagination
     while 'next_url' in data:
         print('requesting next page', data['next_url'])
+
         # Ampersand before apiKey since next_url already has some query params
         # Ampersand ensures proper URL formatting
         response = requests.get(data['next_url'] + f'&apiKey={POLYGON_API_KEY}')
+
         data = response.json()
         print(data)
         for ticker in data['results']:
-            ticker['ds'] = DS
+            ticker['ds'] = DS # need to add because this field is not in the API response
             tickers.append(ticker)
 
     example_ticker =  {'ticker': 'ZWS', 
@@ -54,7 +58,7 @@ def run_stock_job():
         'cik': '0001439288', 
         'composite_figi': 'BBG000H8R0N8', 	'share_class_figi': 'BBG001T36GB5', 	
         'last_updated_utc': '2025-09-11T06:11:10.586204443Z',
-        'ds': '2025-09-25'
+        'ds': '2025-09-25' # need to add because this field is not in the API response
         }
 
     fieldnames = list(example_ticker.keys())
